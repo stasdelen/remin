@@ -11,3 +11,6 @@ ebuild:
 
 uninstall:
 	python3 -m pip uninstall .
+
+tree:
+	tree --gitignore .
