@@ -12,5 +12,8 @@ ebuild:
 uninstall:
 	python3 -m pip uninstall .
 
+upload:
+	python3 -m twine upload dist/*
+
 tree:
 	tree --gitignore .
