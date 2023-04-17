@@ -22,4 +22,4 @@ yapf:
 	yapf --in-place --recursive ./src
 
 pylint:
-	pylint ./src
+	pylint --generated-members="torch.*" ./src
