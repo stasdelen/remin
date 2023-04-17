@@ -10,12 +10,16 @@
 Before using `remin`, you will need to install the following packages:
 
 * PyTorch (version 2.0.0 or later)
+* NumPy
 * pyDOE (version 0.3.8 or later)
 
-You can install PyTorch and pyDOE using pip, the Python package installer. To install PyTorch, run the following command or follow the instructions on their [website](https://pytorch.org/get-started/locally/) to install with GPU support:
-
+You can install all the requirements using pip, the Python package installer. To install PyTorch, run the following command or follow the instructions on their [website](https://pytorch.org/get-started/locally/) to install with GPU support:
 ```
 pip install torch>=2.0.0
+```
+To install NumPy, run the following command:
+```
+pip install numpy
 ```
 To install pyDOE, run the following command:
 ```
@@ -23,7 +27,7 @@ pip install pyDOE>=0.3.8
 ```
 Alternatively, you can install these packages using conda or any other package manager of your choice.
 
-Once you have installed these packages, `remin` can be installed using pip [PyPi](https://pypi.org/project/remin/):
+Once you have installed these packages, `remin` can be installed using pip([PyPi](https://pypi.org/project/remin/)):
 ```
 pip install remin
 ```

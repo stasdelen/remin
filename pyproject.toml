@@ -22,6 +22,7 @@ classifiers = [
 dependencies = [
     "torch >= 2.0.0",
     "pyDOE >= 0.3.8",
+    "numpy",
 ]
 
 [project.urls]
