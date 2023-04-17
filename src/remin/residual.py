@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 
+
 class Residual:
 
     def __init__(self, domain, equation):

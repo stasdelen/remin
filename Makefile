@@ -17,3 +17,9 @@ upload:
 
 tree:
 	tree --gitignore .
+
+yapf:
+	yapf --in-place --recursive ./src
+
+pylint:
+	pylint ./src
