@@ -1,6 +1,6 @@
 from remin.solver import Solver
-from remin.residual import Residual
-from remin import func, residual, domain
+from remin.residual import Residual, ResidualLoader
+from remin import func, domain
 import torch
 from torch import nn
 from model import Heat
@@ -35,7 +35,7 @@ bc0_res = Residual(bc0_col, bc_residual)
 bc1_res = Residual(bc1_col, bc_residual)
 
 if __name__ == '__main__':
-    loader = residual.ResidualLoader(
+    loader = ResidualLoader(
         [pde_res, ic_res, bc0_res, bc1_res],
         fully_loaded=True,
         #batched=False,
