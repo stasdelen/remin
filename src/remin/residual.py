@@ -6,9 +6,10 @@ class Residual:
 
     def __init__(self, domain, equations, batch_size=None):
         self.domain = domain
-        if isinstance(domain, (list, tuple)):
+        if isinstance(equations, (list, tuple)):
             self.equations = equations
-        self.equations = [equations]
+        else:
+            self.equations = [equations]
         if batch_size is None: self.batch_size = len(domain)
         else: self.batch_size = batch_size
 
@@ -42,18 +43,24 @@ class ResBatchSampler(BatchSampler):
         self.batch_sizes = batch_sizes
         self.batch_size = sum(batch_sizes)
         self.ndata = len(batch_sizes)
+        self.batch = [None] * self.batch_size
+        self.batch_shift = [None] * self.batch_size
+        start_idx, batch_idx = 0, 0
+        for i in range(self.ndata):
+            batch_size = self.batch_sizes[i]
+            cumul_size = self.cumul_sizes[i]
+            for j in range(batch_size):
+                self.batch_shift[batch_idx + j] = (batch_size, cumul_size)
+                self.batch[batch_idx + j] = start_idx + j
+            start_idx = cumul_size
+            batch_idx += batch_size
 
     def __iter__(self):
         for i in range(self.cumul_sizes[-1] // self.batch_size):
-            batch = []
-            start_idx = 0
-            for idx in range(self.ndata):
-                batch_size = self.batch_sizes[idx]
-                cumul_size = self.cumul_sizes[idx]
-                start = (start_idx + batch_size * i) % cumul_size
-                batch += list(range(start, start + batch_size))
-                start_idx = cumul_size
-            yield batch
+            for j in range(self.batch_size):
+                batch_size, cumul_size = self.batch_shift[j]
+                self.batch[j] = (self.batch[j] + batch_size * i) % cumul_size
+            yield self.batch
 
 
 class ResidualLoader:
@@ -96,7 +103,10 @@ class ResidualLoader:
         if self.batched:
             self.batch_sampler = ResBatchSampler(self.dataset.cumulative_sizes,
                                                  self.batch_sizes)
-        self.loader = DataLoader(self.dataset,
-                                 batch_size=len(self.dataset),
-                                 batch_sampler=self.batch_sampler,
-                                 **self.args)
+            self.loader = DataLoader(self.dataset,
+                                     batch_sampler=self.batch_sampler,
+                                     **self.args)
+        else:
+            self.loader = DataLoader(self.dataset,
+                                     batch_size=len(self.dataset),
+                                     **self.args)
