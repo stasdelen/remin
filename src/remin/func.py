@@ -1,5 +1,5 @@
 from functools import wraps
-from torch import func
+from torch import func, autograd
 from torch import _dynamo as dynamo
 
 
@@ -39,9 +39,16 @@ def functional_call(model):
     return _call
 
 
-def grad(f, argnum=0):
+def fgrad(f, argnum=0):
     return func.grad(make_sum(f), argnums=argnum)
 
 
-def gradi(f, i, argnum=0):
+def fgradi(f, i, argnum=0):
     return func.grad(take_col_sum(f, i), argnums=argnum)
+
+
+def grad(u, xs, create_graph=False, retain_graph=True):
+    return autograd.grad(u.sum(),
+                         xs,
+                         create_graph=create_graph,
+                         retain_graph=retain_graph)
