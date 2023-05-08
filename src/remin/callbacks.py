@@ -52,7 +52,7 @@ class UnionCallback(Callback):
         self.callbacks = callbacks
         for callback in callbacks:
             callback.state_dict = self.state_dict
-    
+
     def append(self, *callbacks):
         self.callbacks += callbacks
 
@@ -79,7 +79,7 @@ class LogCallback(Callback):
         if epoch % self.log_progress == 0:
             prefix = f'Loss: {resloss:10.6f}'
             if metloss:
-                prefix += f' Metric Loss: {metloss:10.6f}' 
+                prefix += f' Metric Loss: {metloss:10.6f}'
             self._printProgress(epoch, epochs, self.log_epoch, prefix,
                                 f'{(self.t_ave*1e3):7.3f}ms/epoch')
 
@@ -127,7 +127,7 @@ class SaveCallback(Callback):
 class PlotCallback(Callback):
 
     def __init__(self,
-                 state = 'resloss',
+                 state='resloss',
                  size_inches=(10, 5),
                  color='red',
                  linestyle='-',

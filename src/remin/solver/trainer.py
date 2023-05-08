@@ -7,14 +7,12 @@ from .residual_loss import FuncLoss
 
 class Trainer:
 
-    def __init__(
-        self,
-        loader: Loader,
-        model: torch.nn.Module = None,
-        optimizer: torch.optim.Optimizer = None,
-        residual_loss: ResidualLoss = None,
-        metric_loss: ResidualLoss = None
-    ) -> None:
+    def __init__(self,
+                 loader: Loader,
+                 model: torch.nn.Module = None,
+                 optimizer: torch.optim.Optimizer = None,
+                 residual_loss: ResidualLoss = None,
+                 metric_loss: ResidualLoss = None) -> None:
         self.model = model
         self.device = None
         self.params = None
@@ -34,7 +32,7 @@ class Trainer:
 
     def __call__(self) -> float:
         raise NotImplementedError('Train Loop must be defined.')
-    
+
     def eval_loss(self) -> float:
         raise NotImplementedError('Metric calculation must be defined.')
 
@@ -59,7 +57,7 @@ class FullyLoadedTrainer(Trainer):
         resloss = self.residual_loss(self.params, self.loader.xs).item()
         self.optimizer.step(self.optim_closure(self.loader.xs))
         return resloss
-    
+
     def eval_loss(self) -> float:
         self.model.eval()
         metloss = self.metric_loss(self.params, self.loader.xs).item()
@@ -78,7 +76,7 @@ class BatchedTrainer(Trainer):
             self.optimizer.step(self.optim_closure(xs))
         resloss /= self.loader.batch_sampler.n_batches
         return resloss
-    
+
     def eval_loss(self) -> float:
         metloss = 0.0
         with torch.no_grad():
@@ -90,15 +88,14 @@ class BatchedTrainer(Trainer):
             metloss /= self.loader.batch_sampler.n_batches
         self.model.train()
         return metloss
-    
 
 
 def make_trainer(loader: Loader,
                  model: torch.nn.Module = None,
                  optimizer: torch.optim.Optimizer = None,
-                 lossfunc = None,
-                 residual_loss = None,
-                 metric_loss = None):
+                 lossfunc=None,
+                 residual_loss=None,
+                 metric_loss=None):
     if residual_loss is None:
         residual_loss = FuncLoss(loader, lossfunc, model)
     if isinstance(loader, BatchLoader):

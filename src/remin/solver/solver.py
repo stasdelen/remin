@@ -55,10 +55,10 @@ class Solver:
         if self.trainer.residual_loss.lossfunc is None:
             raise ValueError('Loss function must be defined.')
 
-        self.trainer.residual_loss = torch.compile(
-            traceable(self.trainer.residual_loss),
-            backend=backend,
-            fullgraph=fullgraph)
+        self.trainer.residual_loss = torch.compile(traceable(
+            self.trainer.residual_loss),
+                                                   backend=backend,
+                                                   fullgraph=fullgraph)
 
     def update_state(self, **state):
         for key in state.keys():

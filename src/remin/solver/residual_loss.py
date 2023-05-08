@@ -4,7 +4,10 @@ from ..residual import Residual, Loader
 
 class ResidualLoss:
 
-    def __init__(self, lossfunc, model: torch.nn.Module = None, loader: Loader = None) -> None:
+    def __init__(self,
+                 lossfunc,
+                 model: torch.nn.Module = None,
+                 loader: Loader = None) -> None:
         self.loader = loader
         self.lossfunc = lossfunc
         self.model = model
@@ -16,6 +19,7 @@ class ResidualLoss:
 
     def __call__(self, params, xs) -> float:
         raise NotImplementedError('Loss must be defined.')
+
 
 class FuncLoss(ResidualLoss):
 
@@ -40,7 +44,8 @@ class EagerLoss(ResidualLoss):
                 resloss += self.loader.weights[i] * self.lossfunc(
                     func(U, *domain), torch.zeros_like(domain[0]))
         return resloss
-    
+
+
 class ModLoss(ResidualLoss):
 
     def __call__(self, params, xs) -> float:
