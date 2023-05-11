@@ -1,4 +1,5 @@
 from time import thread_time
+from typing import Dict, List, Any
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,7 +7,7 @@ import matplotlib.pyplot as plt
 class Callback:
     # Callback interface
     def __init__(self) -> None:
-        self.state_dict = None
+        self.state_dict: Dict[str, Any] = {}
 
     def on_train_begin(self):
         pass
@@ -23,7 +24,8 @@ class Callback:
 
 class UnionCallback(Callback):
 
-    def __init__(self, state_dict, *callbacks) -> None:
+    def __init__(self, state_dict: Dict[str, Any],
+                 *callbacks: List[Callback]) -> None:
         super().__init__()
         self.callbacks = callbacks
         self.state_dict = state_dict
@@ -56,6 +58,18 @@ class UnionCallback(Callback):
     def append(self, *callbacks):
         self.callbacks += callbacks
 
+class TotalTimeCallback(Callback):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.t0 = 0
+
+    def on_train_begin(self):
+        self.t0 = thread_time()
+    
+    def on_train_end(self):
+        print(f'Total training time: {((thread_time() - self.t0) / 60):7.3f}mins.')
+
 
 class LogCallback(Callback):
 
@@ -65,6 +79,9 @@ class LogCallback(Callback):
         self.log_progress = log_progress
         self.t0 = 0
         self.t_ave = 0
+
+    def on_train_begin(self):
+        self.metric = True if self.state_dict['solver'].trainer.metric_loss else False
 
     def on_epoch_begin(self):
         self.t0 = thread_time()
@@ -78,8 +95,8 @@ class LogCallback(Callback):
         self.t_ave = (self.t_ave * epoch + (thread_time() - self.t0)) / (epoch + 1)
         if epoch % self.log_progress == 0:
             prefix = f'Loss: {resloss:10.6f}'
-            if metloss:
-                prefix += f' Metric Loss: {metloss:10.6f}'
+            if self.metric:
+                prefix += f' - Metric Loss: {metloss:10.6f}'
             self._printProgress(epoch, epochs, self.log_epoch, prefix,
                                 f'{(self.t_ave*1e3):7.3f}ms/epoch')
 
@@ -135,6 +152,7 @@ class PlotCallback(Callback):
                  title='Residual Loss(L)',
                  ylabel='Loss',
                  xlabel='Epoch',
+                 yscale='log',
                  grid_on=True,
                  name='L_vs_epoch.png',
                  dpi=300) -> None:
@@ -147,6 +165,7 @@ class PlotCallback(Callback):
         self.title = title
         self.ylabel = ylabel
         self.xlabel = xlabel
+        self.yscale = yscale
         self.fig_name = name
         self.grid_on = grid_on
         self.dpi = dpi
@@ -156,7 +175,7 @@ class PlotCallback(Callback):
         self.save_path = self.state_dict['solver'].save_path
 
     def on_epoch_end(self):
-        self.losses[self.state_dict['epoch']] = self.state_dict[self.state]
+        self.losses[self.state_dict['epoch']-1] = self.state_dict[self.state]
 
     def on_train_end(self):
         fig, ax = plt.subplots(1, 1)
@@ -166,7 +185,7 @@ class PlotCallback(Callback):
                 color=self.color,
                 linestyle=self.linestyle,
                 linewidth=self.linewidth)
-
+        ax.set_yscale(self.yscale)
         ax.set(title=self.title, ylabel=self.ylabel, xlabel=self.xlabel)
         ax.grid(self.grid_on)
         plt.savefig(self.save_path + self.fig_name, dpi=self.dpi)
