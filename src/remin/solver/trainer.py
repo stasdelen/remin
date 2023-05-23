@@ -34,7 +34,7 @@ class Trainer:
         raise NotImplementedError('Train Loop must be defined.')
 
     def eval_loss(self) -> float:
-        raise NotImplementedError('Metric calculation must be defined.')
+        raise NotImplementedError('Loss evaluation must be defined.')
 
     def optim_closure(self, xs):
 
@@ -42,7 +42,7 @@ class Trainer:
             self.optimizer.zero_grad()
             resloss = self.residual_loss(self.params, xs)
             resloss.backward()
-            return resloss.item()
+            return resloss
 
         return closure
 
@@ -79,13 +79,12 @@ class BatchedTrainer(Trainer):
 
     def eval_loss(self) -> float:
         metloss = 0.0
-        with torch.no_grad():
-            self.model.eval()
-            for batch in self.loader.loader:
-                xs = torch.vsplit(batch.to(self.device, non_blocking=True),
-                                  self.loader.vsplit)
-                metloss += self.metric_loss(self.params, xs).item()
-            metloss /= self.loader.batch_sampler.n_batches
+        self.model.eval()
+        for batch in self.loader.loader:
+            xs = torch.vsplit(batch.to(self.device, non_blocking=True),
+                              self.loader.vsplit)
+            metloss += self.metric_loss(self.params, xs).item()
+        metloss /= self.loader.batch_sampler.n_batches
         self.model.train()
         return metloss
 
@@ -97,10 +96,9 @@ def make_trainer(loader: Loader,
                  residual_loss=None,
                  metric_loss=None):
     if residual_loss is None:
-        residual_loss = FuncLoss(loader, lossfunc, model)
+        residual_loss = FuncLoss(lossfunc, model, loader)
     if isinstance(loader, BatchLoader):
         return BatchedTrainer(loader, model, optimizer, residual_loss, metric_loss)
-    elif isinstance(loader, FullLoader):
+    if isinstance(loader, FullLoader):
         return FullyLoadedTrainer(loader, model, optimizer, residual_loss, metric_loss)
-    else:
-        raise ValueError('Unknown Loader Type.')
+    raise ValueError('Unknown Loader Type.')
