@@ -11,14 +11,19 @@ class Residual:
             self.equations = equations
         else:
             self.equations = [equations]
-        if batch_size is None: self.batch_size = len(domain)
-        else: self.batch_size = batch_size
+        if batch_size is None:
+            self.batch_size = len(domain)
+        else:
+            self.batch_size = batch_size
 
     def to_torch(self, device):
         return torch.from_numpy(self.domain.astype('float32')).to(device)
 
     @staticmethod
     def split_domain(domain):
+        if domain.shape[1] == 1:
+            domain.requires_grad_()
+            return (domain, )
         xs = torch.hsplit(domain, domain.shape[1])
         for x in xs:
             x.requires_grad_()
@@ -47,7 +52,8 @@ class ResBatchSampler(BatchSampler):
         self.n_batches = self.cumul_sizes[0] // self.batch_sizes[0]
         for i in range(1, self.ndata):
             n = (self.cumul_sizes[i] - self.cumul_sizes[i - 1]) // self.batch_sizes[i]
-            if n > self.n_batches: self.n_batches = n
+            if n > self.n_batches:
+                self.n_batches = n
 
         self.batch = [None] * self.batch_size
         self.batch_shift = [None] * self.batch_size
@@ -68,7 +74,7 @@ class ResBatchSampler(BatchSampler):
             yield self.batch
             for j in range(self.batch_size):
                 batch_size, cumul_size, prev_cumul_size = self.batch_shift[j]
-                self.batch[j] = (self.batch[j] + batch_size)
+                self.batch[j] = self.batch[j] + batch_size
                 if self.batch[j] >= cumul_size:
                     self.batch[j] -= cumul_size - prev_cumul_size
 
@@ -82,7 +88,7 @@ class Loader:
         self.weights = [None] * self.n_res
         self.kwargs = kwargs
 
-    def instanciate(self):
+    def instanciate(self, device):
         raise NotImplementedError('Base class cannot be instanciated.')
 
 
@@ -131,11 +137,13 @@ class BatchLoader(Loader):
                                      batch_size=self.dataset_size,
                                      **self.kwargs)
 
+    def instanciate(self, device):
+        pass
+
 
 def make_loader(residuals, fully_loaded=False, batched=False, **kwargs):
     if fully_loaded and batched:
         raise ValueError('Data can not be fully loaded and batched at the same time.')
     if fully_loaded:
         return FullLoader(residuals, **kwargs)
-    else:
-        return BatchLoader(residuals, batched, **kwargs)
+    return BatchLoader(residuals, batched, **kwargs)
