@@ -24,8 +24,7 @@ class Callback:
 
 class UnionCallback(Callback):
 
-    def __init__(self, state_dict: Dict[str, Any],
-                 *callbacks: List[Callback]) -> None:
+    def __init__(self, state_dict: Dict[str, Any], *callbacks: List[Callback]) -> None:
         super().__init__()
         self.callbacks = callbacks
         self.state_dict = state_dict
@@ -47,7 +46,8 @@ class UnionCallback(Callback):
     def on_epoch_end(self):
         rval = 0
         for callback in self.callbacks:
-            if callback.on_epoch_end(): rval = -1
+            if callback.on_epoch_end():
+                rval = -1
         return rval
 
     def reset(self, *callbacks):
@@ -58,6 +58,7 @@ class UnionCallback(Callback):
     def append(self, *callbacks):
         self.callbacks += callbacks
 
+
 class TotalTimeCallback(Callback):
 
     def __init__(self) -> None:
@@ -66,7 +67,7 @@ class TotalTimeCallback(Callback):
 
     def on_train_begin(self):
         self.t0 = thread_time()
-    
+
     def on_train_end(self):
         print(f'Total training time: {((thread_time() - self.t0) / 60):7.3f}mins.')
 
@@ -79,9 +80,10 @@ class LogCallback(Callback):
         self.log_progress = log_progress
         self.t0 = 0
         self.t_ave = 0
+        self.metric = False
 
     def on_train_begin(self):
-        self.metric = True if self.state_dict['solver'].trainer.metric_loss else False
+        self.metric = bool(self.state_dict['solver'].trainer.metric_loss)
 
     def on_epoch_begin(self):
         self.t0 = thread_time()
@@ -113,8 +115,8 @@ class LogCallback(Callback):
         if epoch % log_epoch == 0:
             filledLength = length
             printEnd = '\n'
-        bar = fill * filledLength + '.' * (length - filledLength)
-        print(f'{prefix} [{bar}] [{epoch:>5d}/{epochs:>5d}] {suffix}',
+        loading_bar = fill * filledLength + '.' * (length - filledLength)
+        print(f'{prefix} [{loading_bar}] [{epoch:>5d}/{epochs:>5d}] {suffix}',
               flush=True,
               end=printEnd)
 
@@ -169,13 +171,15 @@ class PlotCallback(Callback):
         self.fig_name = name
         self.grid_on = grid_on
         self.dpi = dpi
+        self.losses = None
+        self.save_path = None
 
     def on_train_begin(self):
         self.losses = np.zeros((self.state_dict['epochs'], ))
         self.save_path = self.state_dict['solver'].save_path
 
     def on_epoch_end(self):
-        self.losses[self.state_dict['epoch']-1] = self.state_dict[self.state]
+        self.losses[self.state_dict['epoch'] - 1] = self.state_dict[self.state]
 
     def on_train_end(self):
         fig, ax = plt.subplots(1, 1)
