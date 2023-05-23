@@ -1,5 +1,5 @@
-from remin.solver import Solver
-from remin.residual import Residual, ResidualLoader
+from remin.solver import Solver, make_trainer
+from remin.residual import Residual, make_loader
 from remin import func, domain
 import torch
 from torch import nn
@@ -35,7 +35,7 @@ bc0_res = Residual(bc0_col, bc_residual)
 bc1_res = Residual(bc1_col, bc_residual)
 
 if __name__ == '__main__':
-    loader = ResidualLoader(
+    loader = make_loader(
         [pde_res, ic_res, bc0_res, bc1_res],
         fully_loaded=True,
         #batched=False,
@@ -47,8 +47,9 @@ if __name__ == '__main__':
     lr = 2e-4
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     lossfunc = nn.MSELoss()
-    heat = Solver('outputs/heat', model, loader, optimizer, lossfunc)
+    trainer = make_trainer(model, loader, optimizer, lossfunc)
+    heat = Solver('heat', 'outputs',trainer=trainer)
 
     heat.compile(backend='inductor', fullgraph=True)
 
-    heat.fit(epochs, log_epoch=1000, log_progress=100)
+    heat.fit(epochs)
