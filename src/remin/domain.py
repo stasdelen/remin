@@ -23,6 +23,10 @@ def Line(pt1, pt2, n_coll):
     return lhs(ndim, n_coll) * scale + shift
 
 
+def Point(pt):
+    return np.array([pt])
+
+
 def Ring(center, radius, n_coll):
     center = np.array(center)
     theta = 2 * np.pi * lhs(1, n_coll)
@@ -40,3 +44,8 @@ def cut(domain_from, constraints):
 
 def union(*args):
     return np.vstack(args)
+
+
+def shuffle(domain):
+    np.random.shuffle(domain)
+    return domain
