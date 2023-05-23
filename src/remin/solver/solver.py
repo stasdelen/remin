@@ -1,8 +1,9 @@
+import os
+from typing import List
 import torch
 from ..func import traceable
-from ..callbacks import UnionCallback, SaveCallback, LogCallback
+from ..callbacks import Callback, UnionCallback, SaveCallback, LogCallback
 from .trainer import Trainer
-import os
 
 
 class Solver:
@@ -10,9 +11,9 @@ class Solver:
     def __init__(self,
                  model: torch.nn.Module,
                  name: str = 'pinn',
-                 save_folder: str = '',
+                 save_folder: str = '.',
                  trainer: Trainer = None,
-                 callbacks=[SaveCallback(), LogCallback()]) -> None:
+                 callbacks: List[Callback] = None) -> None:
         self.name = name
         self.save_path = save_folder + '/'
 
@@ -20,7 +21,9 @@ class Solver:
         self.model = model
         self.trainer.setup(self.model)
 
-        self.epoch = 0
+        self.epoch = 1
+        if callbacks is None:
+            callbacks = [SaveCallback(), LogCallback()]
 
         self.state_dict = {
             'solver': self,
@@ -81,13 +84,14 @@ class Solver:
         self.update_state(epochs=epochs)
 
         self.callback.on_train_begin()
-        for epoch in range(epochs):
+        for epoch in range(1, epochs + 1):
             self.callback.on_epoch_begin()
             resloss = self.trainer()
             if self.trainer.metric_loss:
                 metloss = self.trainer.eval_loss()
                 self.update_state(metloss=metloss)
             self.update_state(resloss=resloss, epoch=epoch)
-            if self.callback.on_epoch_end(): break
+            if self.callback.on_epoch_end():
+                break
         self.callback.on_train_end()
         self.epoch = epoch
