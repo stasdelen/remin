@@ -1,18 +1,19 @@
 import torch
+from .domain import Domain
 from torch.utils.data import (Dataset, ConcatDataset, BatchSampler, DataLoader)
 
 
 class Residual:
 
-    def __init__(self, domain, equations, weight=1.0, batch_size=None):
-        self.domain = domain
+    def __init__(self, domain: Domain, equations, weight=1.0, batch_size=None):
+        self.domain = domain.generate().get()
         self.weight = weight
         if isinstance(equations, (list, tuple)):
             self.equations = equations
         else:
             self.equations = [equations]
         if batch_size is None:
-            self.batch_size = len(domain)
+            self.batch_size = len(self.domain)
         else:
             self.batch_size = batch_size
 
