@@ -185,7 +185,7 @@ class Line(Geometry):
 
 class Point(Geometry):
 
-    def __init__(self, pt ,n_coll = 0) -> None:
+    def __init__(self, pt ,n_coll = 1) -> None:
         super().__init__(n_coll)
         self.pt = np.array([pt])
     
