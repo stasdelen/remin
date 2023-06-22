@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "remin"
-version = "0.1.0"
+version = "0.1.5"
 authors = [
     { name="Salih Taşdelen", email="salih.tasdelen@hotmail.com"},
 ]
