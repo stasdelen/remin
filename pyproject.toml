@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "remin"
-version = "0.1.5"
+version = "0.2.0"
 authors = [
     { name="Salih Taşdelen", email="salih.tasdelen@hotmail.com"},
 ]
@@ -28,6 +28,9 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/SalihTasdelen/remin"
 "Bug Tracker" = "https://github.com/SalihTasdelen/remin/issues"
+
+[project.scripts]
+remin = "remin:main"
 
 [project.optional-dependencies]
 dev = [
