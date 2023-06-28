@@ -1,3 +1,4 @@
+import sys
 import importlib
 import argparse
 import json
@@ -25,16 +26,44 @@ def check_attribute(path: str, attr_name: str) -> bool:
     except:
         return False
 
+def postprocess(model_name, config_file):
+    conf = config_file['conf']
+    models = config_file['models']
+    model = None
+    for m in models:
+        if m['name'] == model_name:
+            model = m
+    if model is None:
+        print(f'No model found with the name {model_name}.')
+        exit(-1)
+
+    ModelClass = getattr(importlib.import_module(model['model_path'][0]),
+                             model['model_path'][1])
+    postfunc = getattr(importlib.import_module(conf['postprocess'][0]),
+                       conf['postprocess'][1])
+    
+    file_name = '/'.join(model['outputs'].split('.'))
+    post_model = ModelClass()
+    mdata = torch.load(file_name + '/' + model_name + '_best.pt')
+    post_model.load_state_dict(mdata['model_state_dict'])
+    post_model.eval()
+
+    postfunc(post_model, file_name + '/' + model_name)
 
 def main():
+    sys.path.append('.')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str)
-
-    import sys
-    sys.path.append('.')
+    parser.add_argument('-p', '--postprocess', type=str)    
 
     args = parser.parse_args()
     config_file = args.config
+    post_model = args.postprocess
+
+    if config_file is None:
+        print('No config file specified.')
+        exit()
 
     with open(config_file) as file:
         config = json.load(file)
@@ -66,6 +95,13 @@ def main():
         if matml_prec is not None:
             torch.set_float32_matmul_precision(matml_prec)
             print(f'Float32 Matmul precision is set to {matml_prec}.')
+        postroc = confs.get('postprocess')
+        if postroc is not None:
+            if check_module(postroc[0]) == False:
+                print('Could not find postproces script.')
+            else:
+                if check_attribute(postroc[0], postroc[1]) == False:
+                    print(f'No postprocess function with the name {postroc[1]}.')
 
     # Training Configuration
     models = config.get('models')
@@ -136,6 +172,10 @@ def main():
         print('Exitting due to above errors.')
         exit(-1)
 
+    if post_model:
+        postprocess(post_model, config)
+        exit(0)
+
     for model in models:
         torch.cuda.empty_cache()
         print(f'Begin training {model["name"]}:')
@@ -171,6 +211,8 @@ def main():
         outfolder = 'outputs'
         if model.get('outputs'):
             outfolder = '/'.join(model['outputs'].split('.'))
+        if outfolder == 'outputs':
+            outfolder += '/' + model['name']
 
         solver = Solver(instance, model['name'], outfolder, trainer=trainer)
 
