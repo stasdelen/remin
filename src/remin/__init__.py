@@ -1,4 +1,5 @@
 import sys
+import os
 import importlib
 import argparse
 import json
@@ -62,8 +63,11 @@ def main():
     post_model = args.postprocess
 
     if config_file is None:
-        print('No config file specified.')
-        exit()
+        config_file = 'training.json'
+
+    if not os.path.isfile(config_file):
+        print(f'Configuration file {config_file} is not found.')
+        exit(-1)
 
     with open(config_file) as file:
         config = json.load(file)
