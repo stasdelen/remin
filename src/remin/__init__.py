@@ -241,11 +241,13 @@ def main():
     parser.add_argument('-c', '--config', type=str)
     parser.add_argument('-p', '--postprocess', type=str)
     parser.add_argument('-m', '--model', type=str)
+    parser.add_argument('-t', '--tag', type=str)
 
     args = parser.parse_args()
     config_file = args.config
     post_model = args.postprocess
     model_name = args.model
+    train_tag = args.tag
 
     if config_file is None:
         config_file = 'training.json'
@@ -273,6 +275,11 @@ def main():
             print(f'No model found with the name {model_name}.')
             exit(-1)
         train_model(model)
+    elif train_tag:
+        for model in models:
+            if model.get('tag') == train_tag:
+                torch.cuda.empty_cache()
+                train_model(model)
     else:
         for model in models:
             torch.cuda.empty_cache()
