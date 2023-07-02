@@ -191,10 +191,10 @@ def train_model(model: dict):
     residual_loss, metric_loss = None, None
 
     residual_loss = getattr(importlib.import_module(model['model_path'][0]),
-                            losses['resloss'])
-    if losses.get('metloss'):
+                            losses['residual'])
+    if losses.get('metric'):
         metric_loss = getattr(importlib.import_module(model['model_path'][0]),
-                              losses['metloss'])
+                              losses['metric'])
 
     trainer = make_trainer(loader,
                            optimizer=optimizer,
