@@ -2,6 +2,7 @@ from time import thread_time
 from typing import Dict, List, Any
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 
 class Callback:
@@ -193,3 +194,26 @@ class PlotCallback(Callback):
         ax.set(title=self.title, ylabel=self.ylabel, xlabel=self.xlabel)
         ax.grid(self.grid_on)
         plt.savefig(self.save_path + self.fig_name, dpi=self.dpi)
+
+
+class CSVCallback(Callback):
+
+    def __init__(self, name: str = 'training_data.csv') -> None:
+        super().__init__()
+        self.name = name
+        self.fields = ['epoch', 'residual', 'metric']
+
+    def on_train_begin(self):
+        self.data = np.zeros((self.state_dict['epochs'], len(self.fields)))
+        self.save_path = self.state_dict['solver'].save_path
+
+    def on_epoch_end(self):
+        for i, field in enumerate(self.fields):
+            self.data[self.state_dict['epoch'] - 1, i] = self.state_dict[field]
+
+    def on_train_end(self):
+        with open(self.save_path + '/' + self.name, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+
+            csvwriter.writerow(self.fields)
+            csvwriter.writerows(self.data)

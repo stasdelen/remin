@@ -238,6 +238,8 @@ def train_model(model: dict):
                         callist.append(
                             callbacks.PlotCallback(state=state,
                                                    name=model['name'] + '_' + state))
+            if key == 'csv':
+                callist.append(callbacks.CSVCallback(model['name'] + '_data.csv'))
 
         solver.reset_callbacks(*callist)
     solver.fit(epochs)
