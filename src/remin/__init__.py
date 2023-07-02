@@ -175,8 +175,17 @@ def train_model(model: dict):
 
     ModelClass = getattr(importlib.import_module(model['model_path'][0]),
                          model['model_path'][1])
-    data = getattr(importlib.import_module(model['data_path'][0]),
-                   model['data_path'][1])
+    if model.get('parameters'):
+        datalib = importlib.import_module(model['data_path'][0])
+        params = model['parameters']
+        for key in params.keys():
+            old_val = getattr(datalib, key)
+            setattr(datalib, key, params[key])
+            print(f'Changed {key} from {old_val} to {getattr(datalib, key)}.')
+        data = getattr(datalib, model['data_path'][1])
+    else:
+        data = getattr(importlib.import_module(model['data_path'][0]),
+                       model['data_path'][1])
 
     instance = ModelClass()
 
