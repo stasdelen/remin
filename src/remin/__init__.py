@@ -171,7 +171,7 @@ def postprocess(model_name: str, config_file: dict):
 
 
 def train_model(model: dict):
-    print(f'Begin training {model["name"]}:')
+    print(f'\nBegin training {model["name"]}:')
 
     ModelClass = getattr(importlib.import_module(model['model_path'][0]),
                          model['model_path'][1])
