@@ -91,8 +91,8 @@ class LogCallback(Callback):
     def on_epoch_end(self):
         epoch = self.state_dict['epoch']
         epochs = self.state_dict['epochs']
-        resloss = self.state_dict['resloss']
-        metloss = self.state_dict['metloss']
+        resloss = self.state_dict['residual']
+        metloss = self.state_dict['metric']
 
         self.t_ave = (self.t_ave * epoch + (thread_time() - self.t0)) / (epoch + 1)
         if epoch % self.log_progress == 0:
@@ -130,7 +130,7 @@ class SaveCallback(Callback):
         self.final_suffix = final_suffix
 
     def on_epoch_end(self):
-        resloss = self.state_dict['resloss']
+        resloss = self.state_dict['residual']
         epoch = self.state_dict['epoch']
         solver = self.state_dict['solver']
         if resloss < self.best_loss:
@@ -146,7 +146,7 @@ class SaveCallback(Callback):
 class PlotCallback(Callback):
 
     def __init__(self,
-                 state='resloss',
+                 state='residual',
                  size_inches=(10, 5),
                  color='red',
                  linestyle='-',

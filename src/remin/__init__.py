@@ -220,9 +220,16 @@ def train_model(model: dict):
             if key == 'log':
                 callist.append(callbacks.LogCallback(calls[key][0], calls[key][1]))
             if key == 'plot':
-                for pkey in calls[key].keys():
-                    callist.append(
-                        callbacks.PlotCallback(state=pkey, name=calls[key][pkey]))
+                if isinstance(calls[key], dict):
+                    for pkey in calls[key].keys():
+                        callist.append(
+                            callbacks.PlotCallback(state=pkey, name=calls[key][pkey]))
+                elif isinstance(calls[key], list):
+                    for state in calls[key]:
+                        callist.append(
+                            callbacks.PlotCallback(state=state,
+                                                   name=model['name'] + '_' + state))
+
         solver.reset_callbacks(*callist)
     solver.fit(epochs)
 

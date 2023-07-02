@@ -29,8 +29,8 @@ class Solver:
             'solver': self,
             'epoch': None,
             'epochs': None,
-            'resloss': None,
-            'metloss': None
+            'residual': None,
+            'metric': None
         }
         self.callback = UnionCallback(self.state_dict, *callbacks)
 
@@ -89,8 +89,8 @@ class Solver:
             resloss = self.trainer()
             if self.trainer.metric_loss:
                 metloss = self.trainer.eval_loss()
-                self.update_state(metloss=metloss)
-            self.update_state(resloss=resloss, epoch=epoch)
+                self.update_state(metric=metloss)
+            self.update_state(residual=resloss, epoch=epoch)
             if self.callback.on_epoch_end():
                 break
         self.callback.on_train_end()
