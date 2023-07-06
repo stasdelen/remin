@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 
 
 def check_module(path: str) -> bool:
@@ -249,9 +249,9 @@ def train_model(model: dict):
     solver.fit(epochs)
 
 
-def plot_losses(models: list, ylog = ['log', 'metric']):
-    fig, ax = plt.subplots(1, 1) 
-    fig.set_size_inches(10,5)
+def plot_losses(models: list, ylog=['log', 'metric']):
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(10, 5)
     for model in models:
         outpath = '/'.join(model['outputs'].split('.'))
         with open(outpath + '/' + model['name'] + '_data.csv') as csvfile:
@@ -265,6 +265,7 @@ def plot_losses(models: list, ylog = ['log', 'metric']):
     ax.legend(loc='best')
     plt.savefig('loss_vs_epoch.png', dpi=300)
     plt.show()
+
 
 def main():
     sys.path.append('.')
