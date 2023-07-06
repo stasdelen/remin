@@ -1,7 +1,17 @@
-# remin: Physics-Informed Neural Networks Solver Library
+# remin: Residual Minimizer - Physics Informed Neural Networks
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/Python-3.7%2B-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![PyTorch Version](https://img.shields.io/badge/PyTorch-2.0.0%2B-orange.svg)](https://pytorch.org/)
 
-> `remin` is a Python package that provides an implementation of Physics-Informed Neural Networks (PINNs) using PyTorch. It allows users to create neural network models that can solve differential equations and other physics problems. It provides an efficient and easy-to-use interface for training neural networks using physics-based constraints, and can be used for a wide range of applications in physics and engineering.
+**remin** is a Python module that provides a framework for developing Physics Informed Neural Networks (PINNs) using PyTorch. This module integrates PyTorch for model creation and training, Latin-Hypercube sampling for geometry creation, and also includes a small, user-friendly module for creating geometries.
+
+## Key Features
+
+- Implementation of Physics Informed Neural Networks (PINNs) using PyTorch.
+- Support for creating geometries using Latin-Hypercube sampling.
+- Intuitive module for defining and creating complex geometries.
+- Command-line interface (CLI) for simultaneous training of multiple models.
 
 ## Installation
 
@@ -34,24 +44,27 @@ pip install remin
 ---
 ## Usage
 
+To use **remin** in your Python project, import the necessary modules as follows:
+```
+import remin.geometry as rd
+import remin.func as rf
+import remin.solver.residual_loss as rl
+from remin.solver import Solver, make_trainer
+from remin.residual import Residual, make_loader
+```
 *Will be extended in future.*
 
 ---
 ## Contributing
 
-If you want to contribute to `remin`, feel free to submit a pull request or open an issue on GitHub.
+If you want to contribute to **remin**, feel free to submit a pull request or open an issue on [GitHub](https://github.com/SalihTasdelen/remin).
 
----
-## References
-
-If you want to learn more about Physics-Informed Neural Networks (PINNs) and their applications, here are some useful references:
-
-* Raissi, Maziar, Paris Perdikaris, and George Em Karniadakis. "Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations." Journal of Computational Physics 378 (2019): 686-707.
-* Sirignano, Justin, and Konstantinos Spiliopoulos. "DGM: A deep learning algorithm for solving partial differential equations." Journal of Computational Physics 375 (2018): 1339-1364.
-* Yang, Ke, and Jie Liu. "Physics informed deep learning (part I): Data-driven solutions of nonlinear partial differential equations." arXiv preprint arXiv:1711.10561 (2017).
-* Yang, Ke, and Jie Liu. "Physics informed deep learning (part II): Data-driven discovery of nonlinear partial differential equations." arXiv preprint arXiv:1711.10566 (2017).
-
----
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/SalihTasdelen/remin/blob/main/LICENSE) file for details.
+This project is licensed under the [MIT License](https://github.com/SalihTasdelen/remin/blob/main/LICENSE).
+
+## Contact
+
+For any questions, suggestions, or feedback, please feel free to contact the maintainer at [salih.tasdelen@metu.edu.tr].
+
+Thank you for using **remin**!
