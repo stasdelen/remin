@@ -70,7 +70,7 @@ class TotalTimeCallback(Callback):
         self.t0 = thread_time()
 
     def on_train_end(self):
-        print(f'Total training time: {((thread_time() - self.t0) / 60):7.3f}mins.')
+        print(f'\nTotal training time: {((thread_time() - self.t0) / 60):7.3f}mins.')
 
 
 class LogCallback(Callback):
@@ -102,6 +102,10 @@ class LogCallback(Callback):
                 prefix += f' - Metric Loss: {metloss:10.6f}'
             self._printProgress(epoch, epochs, self.log_epoch, prefix,
                                 f'{(self.t_ave*1e3):7.3f}ms/epoch')
+
+    def on_train_end(self):
+        if self.state_dict['epoch'] == self.state_dict['epochs']:
+            print(f'\nTraining over:\n\tBest Loss Achieved: {self.state_dict["best"]:10.6f}')
 
     @staticmethod
     def _printProgress(epoch,
@@ -186,7 +190,7 @@ class PlotCallback(Callback):
         fig, ax = plt.subplots(1, 1)
         if self.size_inches:
             fig.set_size_inches(*self.size_inches)
-        ax.plot(self.losses,
+        ax.plot(self.losses[:self.state_dict['epoch']],
                 color=self.color,
                 linestyle=self.linestyle,
                 linewidth=self.linewidth)
@@ -216,4 +220,36 @@ class CSVCallback(Callback):
             csvwriter = csv.writer(csvfile)
 
             csvwriter.writerow(self.fields)
-            csvwriter.writerows(self.data)
+            csvwriter.writerows(self.data[:self.state_dict['epoch']])
+
+
+class EarlyStoppingCallback(Callback):
+
+    def __init__(self, min_delta=0, patience=8, restore_best_weights=False) -> None:
+        super().__init__()
+        self.min_delta = min_delta
+        self.max_patience = patience
+        self.patience = 0
+        self.restore_best_weights = restore_best_weights
+        self.saved_loss = float('inf')
+        self.best_loss = float('inf')
+
+    def on_epoch_end(self):
+        resloss = self.state_dict['residual']
+
+        if self.patience >= self.max_patience:
+            print(f'''\nEarly Stopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
+        Residual Loss: {resloss:10.6f}
+        Saved Loss:    {self.saved_loss:10.6f}
+        Best Loss:     {self.best_loss:10.6f}''')
+            return 1
+
+        if (self.saved_loss - resloss) / resloss * 100 > self.min_delta:
+            self.patience = 0
+            if self.restore_best_weights:
+                self.saved_loss = self.state_dict['best']
+            else:
+                self.saved_loss = resloss
+        else:
+            #print(resloss - self.saved_loss)
+            self.patience += 1
