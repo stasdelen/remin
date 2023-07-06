@@ -3,9 +3,11 @@ import os
 import importlib
 import argparse
 import json
+import csv
 from remin.solver import Solver, make_trainer
 from remin.residual import make_loader
 from remin import callbacks
+import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
@@ -247,6 +249,23 @@ def train_model(model: dict):
     solver.fit(epochs)
 
 
+def plot_losses(models: list, ylog = ['log', 'metric']):
+    fig, ax = plt.subplots(1, 1) 
+    fig.set_size_inches(10,5)
+    for model in models:
+        outpath = '/'.join(model['outputs'].split('.'))
+        with open(outpath + '/' + model['name'] + '_data.csv') as csvfile:
+            csvreader = csv.reader(csvfile)
+            nrow = next(csvreader).index(ylog[1])
+            y = [float(row[nrow]) for row in csvreader]
+        ax.plot(y, linewidth=2, label=model['name'])
+    ax.set_yscale(ylog[0])
+    ax.set(title='Loss vs. Epoch', ylabel='Loss', xlabel='Epoch')
+    ax.grid(True)
+    ax.legend(loc='best')
+    plt.savefig('loss_vs_epoch.png', dpi=300)
+    plt.show()
+
 def main():
     sys.path.append('.')
 
@@ -257,6 +276,7 @@ def main():
     parser.add_argument('-t', '--tag', type=str)
     parser.add_argument('-r', '--read', action='store_true')
     parser.add_argument('-l', '--list', type=str, const='*', nargs='?')
+    parser.add_argument('--plt', '--plot', type=str, nargs=2)
 
     args = parser.parse_args()
     config_file = args.config
@@ -265,6 +285,7 @@ def main():
     train_tag = args.tag
     read_tag = args.read
     list_flag = args.list
+    plt_flag = args.plt
 
     if config_file is None:
         config_file = 'training.json'
@@ -300,6 +321,16 @@ def main():
             for i, model in enumerate(config['models']):
                 if model['tag'] == list_flag:
                     print(f'\t{i}: {model["name"]}')
+        exit(0)
+    elif plt_flag:
+        if model_name:
+            plot_losses([find_model(model_name, config['models'])], plt_flag)
+        elif train_tag:
+            models = []
+            for model in config['models']:
+                if model['tag'] == train_tag:
+                    models.append(model)
+            plot_losses(models, plt_flag)
         exit(0)
 
     models = config['models']
