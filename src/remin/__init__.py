@@ -256,6 +256,7 @@ def main():
     parser.add_argument('-m', '--model', type=str)
     parser.add_argument('-t', '--tag', type=str)
     parser.add_argument('-r', '--read', action='store_true')
+    parser.add_argument('-l', '--list', type=str, const='*', nargs='?')
 
     args = parser.parse_args()
     config_file = args.config
@@ -263,6 +264,7 @@ def main():
     model_name = args.model
     train_tag = args.tag
     read_tag = args.read
+    list_flag = args.list
 
     if config_file is None:
         config_file = 'training.json'
@@ -287,6 +289,17 @@ def main():
 
     if post_model:
         postprocess(post_model, config)
+        exit(0)
+    elif list_flag:
+        if list_flag == '*':
+            print('Listing all models:')
+            for i, model in enumerate(config['models']):
+                print(f'\t{i}: {model["name"]}')
+        else:
+            print(f'Listing models with the tag {list_flag}:')
+            for i, model in enumerate(config['models']):
+                if model['tag'] == list_flag:
+                    print(f'\t{i}: {model["name"]}')
         exit(0)
 
     models = config['models']
