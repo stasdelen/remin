@@ -9,7 +9,7 @@ from remin import callbacks
 import torch
 import numpy as np
 
-__version__ = '0.2.0'
+__version__ = '0.2.5'
 
 
 def check_module(path: str) -> bool:

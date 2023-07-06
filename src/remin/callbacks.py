@@ -105,7 +105,9 @@ class LogCallback(Callback):
 
     def on_train_end(self):
         if self.state_dict['epoch'] == self.state_dict['epochs']:
-            print(f'\nTraining over:\n\tBest Loss Achieved: {self.state_dict["best"]:10.6f}')
+            print(
+                f'\nTraining over:\n\tBest Loss Achieved: {self.state_dict["best"]:10.6f}'
+            )
 
     @staticmethod
     def _printProgress(epoch,
@@ -238,7 +240,8 @@ class EarlyStoppingCallback(Callback):
         resloss = self.state_dict['residual']
 
         if self.patience >= self.max_patience:
-            print(f'''\nEarly Stopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
+            print(
+                f'''\nEarly Stopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
         Residual Loss: {resloss:10.6f}
         Saved Loss:    {self.saved_loss:10.6f}
         Best Loss:     {self.best_loss:10.6f}''')
