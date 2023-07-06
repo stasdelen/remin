@@ -240,6 +240,8 @@ def train_model(model: dict):
                                                    name=model['name'] + '_' + state))
             if key == 'csv':
                 callist.append(callbacks.CSVCallback(model['name'] + '_data.csv'))
+            if key == 'earlystopping':
+                callist.append(callbacks.EarlyStoppingCallback(**calls[key]))
 
         solver.reset_callbacks(*callist)
     solver.fit(epochs)

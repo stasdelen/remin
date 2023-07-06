@@ -30,7 +30,8 @@ class Solver:
             'epoch': None,
             'epochs': None,
             'residual': None,
-            'metric': None
+            'metric': None,
+            'best': float('inf')
         }
         self.callback = UnionCallback(self.state_dict, *callbacks)
 
@@ -87,6 +88,8 @@ class Solver:
         for epoch in range(1, epochs + 1):
             self.callback.on_epoch_begin()
             resloss = self.trainer()
+            if resloss < self.state_dict['best']:
+                self.update_state(best=resloss)
             if self.trainer.metric_loss:
                 metloss = self.trainer.eval_loss()
                 self.update_state(metric=metloss)
