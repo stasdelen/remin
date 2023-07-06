@@ -255,12 +255,14 @@ def main():
     parser.add_argument('-p', '--postprocess', type=str)
     parser.add_argument('-m', '--model', type=str)
     parser.add_argument('-t', '--tag', type=str)
+    parser.add_argument('-r', '--read', action='store_true')
 
     args = parser.parse_args()
     config_file = args.config
     post_model = args.postprocess
     model_name = args.model
     train_tag = args.tag
+    read_tag = args.read
 
     if config_file is None:
         config_file = 'training.json'
@@ -271,6 +273,13 @@ def main():
 
     with open(config_file) as file:
         config = json.load(file)
+
+    if read_tag:
+        if parse_config(config):
+            print('Exitting due to above errors.')
+            exit(-1)
+        print('Config file has no errors.')
+        exit(0)
 
     if parse_config(config):
         print('Exitting due to above errors.')
