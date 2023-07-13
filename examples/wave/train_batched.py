@@ -68,8 +68,8 @@ if __name__ == '__main__':
         callbacks.TotalTimeCallback(),
         callbacks.SaveCallback(),
         callbacks.LogCallback(log_epoch=1000, log_progress=1),
-        callbacks.PlotCallback(state='resloss', name='batched_ressloss.png'),
-        callbacks.PlotCallback(state='metloss', name='batched_metloss.png')
+        callbacks.PlotCallback(state='residual', name='batched_ressloss.png'),
+        callbacks.PlotCallback(state='metric', name='batched_metloss.png')
     )
 
     solver.fit(epochs)
