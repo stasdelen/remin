@@ -1,4 +1,5 @@
 import torch
+from numpy import ndarray
 from .domain import Domain
 from torch.utils.data import (Dataset, ConcatDataset, BatchSampler, DataLoader)
 
@@ -6,7 +7,12 @@ from torch.utils.data import (Dataset, ConcatDataset, BatchSampler, DataLoader)
 class Residual:
 
     def __init__(self, domain: Domain, equations, weight=1.0, batch_size=None):
-        self.domain = domain.generate().get()
+        if isinstance(domain, Domain) and domain.cpoints is None:
+            self.domain = domain.generate().get()
+        elif isinstance(domain, ndarray):
+            self.domain = domain
+        else:
+            raise TypeError('Unknown domain type.')
         self.weight = weight
         if isinstance(equations, (list, tuple)):
             self.equations = equations
