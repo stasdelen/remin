@@ -30,7 +30,7 @@ class FuncLoss(ResidualLoss):
             residuals = torch.hstack(self.loader.functions[i](params, *domain))
             resloss = torch.mean(
                 self.loader.weights[i] *
-                self.lossfunc(residuals, torch.zeros_like(domain[0]))).sum()
+                self.lossfunc(residuals, torch.zeros_like(domain[0])), 0).sum()
         return resloss
 
 
