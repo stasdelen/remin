@@ -10,6 +10,7 @@ class ResidualLoss:
                  loader: Loader = None) -> None:
         self.loader = loader
         self.lossfunc = lossfunc
+        self.lossfunc.reduction = 'none'
         self.model = model
         self.__name__ = 'residual_loss'
 
