@@ -10,6 +10,7 @@ class ResidualLoss:
                  loader: Loader = None) -> None:
         self.loader = loader
         self.lossfunc = lossfunc
+        self.lossfunc.reduction = 'none'
         self.model = model
         self.__name__ = 'residual_loss'
 
@@ -24,12 +25,12 @@ class ResidualLoss:
 class FuncLoss(ResidualLoss):
 
     def __call__(self, params, xs) -> float:
-        resloss = 0
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
-            for func in self.loader.functions[i]:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    func(params, *domain), torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](params, *domain))
+            resloss = torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(domain[0])), 0).sum()
         return resloss
 
 
@@ -40,9 +41,10 @@ class EagerLoss(ResidualLoss):
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
             U = self.model(*domain)
-            for func in self.loader.functions[i]:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    func(U, *domain), torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](U, *domain))
+            resloss += torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(residuals)), 0).sum()
         return resloss
 
 
@@ -52,7 +54,8 @@ class ModLoss(ResidualLoss):
         resloss = 0
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
-            for func in self.loader.functions[i]:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    func(self.model, *domain), torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](self.model, *domain))
+            resloss += torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(residuals)), 0).sum()
         return resloss

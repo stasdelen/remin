@@ -11,6 +11,7 @@ class Trainer:
                  loader: Loader,
                  model: torch.nn.Module = None,
                  optimizer: torch.optim.Optimizer = None,
+                 scheduler: torch.optim.lr_scheduler = None,
                  residual_loss: ResidualLoss = None,
                  metric_loss: ResidualLoss = None) -> None:
         self.model = model
@@ -19,6 +20,7 @@ class Trainer:
 
         self.loader = loader
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.residual_loss = residual_loss
         self.metric_loss = metric_loss
 
@@ -56,6 +58,8 @@ class FullyLoadedTrainer(Trainer):
     def __call__(self) -> float:
         resloss = self.residual_loss(self.params, self.loader.xs).item()
         self.optimizer.step(self.optim_closure(self.loader.xs))
+        if self.scheduler:
+            self.scheduler.step()
         return resloss
 
     def eval_loss(self) -> float:
@@ -74,6 +78,8 @@ class BatchedTrainer(Trainer):
                               self.loader.vsplit)
             resloss += self.residual_loss(self.params, xs).item()
             self.optimizer.step(self.optim_closure(xs))
+        if self.scheduler:
+            self.scheduler.step()
         resloss /= self.loader.batch_sampler.n_batches
         return resloss
 
@@ -92,13 +98,14 @@ class BatchedTrainer(Trainer):
 def make_trainer(loader: Loader,
                  model: torch.nn.Module = None,
                  optimizer: torch.optim.Optimizer = None,
+                 scheduler: torch.optim.lr_scheduler = None,
                  lossfunc=None,
                  residual_loss=None,
                  metric_loss=None):
     if residual_loss is None:
         residual_loss = FuncLoss(lossfunc, model, loader)
     if isinstance(loader, BatchLoader):
-        return BatchedTrainer(loader, model, optimizer, residual_loss, metric_loss)
+        return BatchedTrainer(loader, model, optimizer, scheduler, residual_loss, metric_loss)
     if isinstance(loader, FullLoader):
-        return FullyLoadedTrainer(loader, model, optimizer, residual_loss, metric_loss)
+        return FullyLoadedTrainer(loader, model, optimizer, scheduler, residual_loss, metric_loss)
     raise ValueError('Unknown Loader Type.')
