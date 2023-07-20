@@ -34,14 +34,8 @@ class MeshHardBC(nn.Module):
         X_nn, Y_nn = Uhat[:,0:1], Uhat[:,1:2]
         X = x + self.distance * X_nn
         Y = y + self.distance * Y_nn
-
-        X_x, X_y = grad(X, [x, y])
-        Y_x, Y_y = grad(X, [x, y])
-        X_xy, X_xx = grad(X_x, [x, y])
-        Y_yx, Y_yy = grad(Y_y, [x, y])
-        X_yy = grad(X_y, y)[0]
-        Y_xx = grad(Y_x, x)[0]
-        return X, Y, X_xy, Y_yx, X_xx, X_yy, Y_xx, Y_yy
+        
+        return X, Y
     
     def calc(self, Uin):
         x, y = Uin[:,0:1], Uin[:,1:2]

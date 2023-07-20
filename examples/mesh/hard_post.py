@@ -23,11 +23,11 @@ if __name__ == '__main__':
 	hard_file = args.hard
 	soft_file = args.soft
 	if args.hard is None:
-		# file_name = 'mesh_w25_lr5e5/mesh_square_best.pt'
-		hard_file = 'mesh_hard/mesh_square_final.pt'
+		# file_name = 'outputs/mesh_w25_lr5e5/mesh_hard_best.pt'
+		hard_file = 'outputs/mesh_hard/mesh_hard_final.pt'
 	if args.soft is None:
-		# file_name = 'mesh_w25_lr5e5/mesh_square_best.pt'
-		soft_file = 'mesh_w25_lr5e5/mesh_square_final.pt'
+		# file_name = 'outputs/mesh_w25_lr5e5/mesh_soft_best.pt'
+		soft_file = 'outputs/mesh_w25_lr5e5/mesh_soft_final.pt'
 
 	# Load soft model
 	soft_model = Mesh()

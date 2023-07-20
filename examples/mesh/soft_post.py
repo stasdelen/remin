@@ -14,8 +14,8 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	file_name = args.file
 	if args.file is None:
-		# file_name = 'mesh_w25_lr5e5/mesh_square_best.pt'
-		file_name = 'mesh_w25_lr5e5/mesh_square_final.pt'
+		# file_name = 'outputs/mesh_w25_lr5e5/mesh_soft_best.pt'
+		file_name = 'outputs/mesh_w25_lr5e5/mesh_soft_final.pt'
 	
 	model = Mesh()
 	mdata = torch.load(file_name)

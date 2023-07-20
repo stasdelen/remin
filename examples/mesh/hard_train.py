@@ -2,6 +2,7 @@ from remin.solver import Solver, make_trainer
 from remin.residual import Residual, make_loader
 from remin.solver.residual_loss import EagerLoss
 from remin import callbacks
+from remin.func import grad
 import torch
 import numpy as np
 from torch import nn
@@ -27,8 +28,8 @@ parser.add_argument('-s', '--soft', type=str)
 args = parser.parse_args()
 file_name = args.soft
 if args.soft is None:
-	# file_name = 'mesh_w25_lr5e5/mesh_square_best.pt'
-	file_name = 'mesh_w25_lr5e5/mesh_square_final.pt'
+	# file_name = 'outputs/mesh_w25_lr5e5/mesh_soft_best.pt'
+	file_name = 'outputs/mesh_w25_lr5e5/mesh_soft_final.pt'
 
 # Soft model instance
 model = Mesh()
@@ -38,15 +39,20 @@ model.load_state_dict(mdata['model_state_dict'])
 meshdir = 'square.msh'
 U_p, distance = impose_hard_bc(model, meshdir)
 
-def pde_residual_X(grads, x, y):
-    _, _, _, Y_yx, X_xx, X_yy, _, _= grads
-    return lambda_a*(X_xx + Y_yx) + mu_a*(2*X_xx + X_yy + Y_yx)
+def pde_residual(U, x, y):
+    X, Y = U
+    X_x, X_y = grad(X, [x, y])
+    Y_x, Y_y = grad(Y, [x, y])
+    X_xy, X_xx = grad(X_x, [x, y])
+    Y_yx, Y_yy = grad(Y_y, [x, y])
+    X_yy = grad(X_y, y)[0]
+    Y_xx = grad(Y_x, x)[0]
+    
+    fx = lambda_a*(X_xx + Y_yx) + mu_a*(2*X_xx + X_yy + Y_yx)
+    fy = mu_a*(X_xy + Y_xx + 2*Y_yy) + lambda_a*(X_xy + Y_yy)
+    return fx, fy
 
-def pde_residual_Y(grads, x, y):
-    _, _, X_xy, _, _, _, Y_xx, Y_yy = grads
-    return mu_a*(X_xy + Y_xx + 2*Y_yy) + lambda_a*(X_xy + Y_yy)
-
-pde_res = Residual(U_p, [pde_residual_X, pde_residual_Y])
+pde_res = Residual(U_p, pde_residual)
 
 if __name__ == '__main__':
 
@@ -68,8 +74,8 @@ if __name__ == '__main__':
 	                       metric_loss=metloss)
 
 	solver = Solver(model,
-	                name='mesh_square',
-	                save_folder='./mesh_hard',
+	                name='mesh_hard',
+	                save_folder='./outputs/mesh_hard',
 	                trainer=trainer)
 
 	solver.reset_callbacks(
