@@ -11,6 +11,8 @@ class Residual:
             self.domain = domain.generate().get()
         elif isinstance(domain, ndarray):
             self.domain = domain
+        elif isinstance(domain, torch.Tensor):
+            self.domain = domain
         else:
             raise TypeError('Unknown domain type.')
         self.weight = weight
@@ -24,6 +26,8 @@ class Residual:
             self.batch_size = batch_size
 
     def to_torch(self, device):
+        if isinstance(self.domain, torch.Tensor):
+            return self.domain
         return torch.from_numpy(self.domain.astype('float32')).to(device)
 
     @staticmethod
