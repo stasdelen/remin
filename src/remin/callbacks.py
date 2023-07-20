@@ -67,10 +67,10 @@ class TotalTimeCallback(Callback):
         self.t0 = 0
 
     def on_train_begin(self):
-        self.t0 = thread_time()
+        self.t0 = time.time()
 
     def on_train_end(self):
-        print(f'\nTotal training time: {((thread_time() - self.t0) / 60):7.3f}mins.')
+        print(f'\nTotal training time: {((time.time() - self.t0) / 60):7.3f}mins.')
 
 
 class LogCallback(Callback):
