@@ -6,7 +6,7 @@ from torch.utils.data import (Dataset, ConcatDataset, BatchSampler, DataLoader)
 
 class Residual:
 
-    def __init__(self, domain: Domain, equations, weight=1.0, batch_size=None):
+    def __init__(self, domain: Domain, equation, weight=1.0, batch_size=None):
         if isinstance(domain, Domain) and domain.cpoints is None:
             self.domain = domain.generate().get()
         elif isinstance(domain, ndarray):
@@ -14,10 +14,7 @@ class Residual:
         else:
             raise TypeError('Unknown domain type.')
         self.weight = weight
-        if isinstance(equations, (list, tuple)):
-            self.equations = equations
-        else:
-            self.equations = [equations]
+        self.equation = equation
         if batch_size is None:
             self.batch_size = len(self.domain)
         else:
@@ -107,7 +104,7 @@ class FullLoader(Loader):
 
     def instanciate(self, device):
         for i in range(self.n_res):
-            self.functions[i] = self.residuals[i].equations
+            self.functions[i] = self.residuals[i].equation
             self.xs[i] = self.residuals[i].to_torch(device)
             self.weights[i] = self.residuals[i].weight
 
@@ -123,7 +120,7 @@ class BatchLoader(Loader):
 
         for i in range(self.n_res):
             self.batch_sizes[i] = self.residuals[i].batch_size
-            self.functions[i] = self.residuals[i].equations
+            self.functions[i] = self.residuals[i].equation
             self.weights[i] = self.residuals[i].weight
             self.datasets[i] = ResidualDataset(self.residuals[i].domain)
 
