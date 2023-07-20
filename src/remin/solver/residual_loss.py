@@ -24,13 +24,12 @@ class ResidualLoss:
 class FuncLoss(ResidualLoss):
 
     def __call__(self, params, xs) -> float:
-        resloss = 0
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
-            residuals = self.loader.functions[i](params, *domain)
-            for residual in residuals:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    residual, torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](params, *domain))
+            resloss = torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(domain[0]))).sum()
         return resloss
 
 
@@ -41,10 +40,10 @@ class EagerLoss(ResidualLoss):
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
             U = self.model(*domain)
-            residuals = self.loader.functions[i](U, *domain)
-            for residual in residuals:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    residual, torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](U, *domain))
+            resloss += torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(residuals)), 0).sum()
         return resloss
 
 
@@ -54,8 +53,8 @@ class ModLoss(ResidualLoss):
         resloss = 0
         for i in range(self.loader.n_res):
             domain = Residual.split_domain(xs[i])
-            residuals = self.loader.functions[i](self.model, *domain)
-            for residual in residuals:
-                resloss += self.loader.weights[i] * self.lossfunc(
-                    residual, torch.zeros_like(domain[0]))
+            residuals = torch.hstack(self.loader.functions[i](self.model, *domain))
+            resloss += torch.mean(
+                self.loader.weights[i] *
+                self.lossfunc(residuals, torch.zeros_like(residuals)), 0).sum()
         return resloss
