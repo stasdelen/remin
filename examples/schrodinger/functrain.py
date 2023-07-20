@@ -23,19 +23,17 @@ ddU = func.fgrad(dU)
 
 def de_residual(params, x):
     V = 0.5 * omega**2 * x**2
-    return -0.5*ddU(params, x) + (V - E) * U(params, x)
+    return -0.5*ddU(params, x) + (V - E) * U(params, x),
 
 def ic1_residual(params, x):
-    return U(params, x)
+    return U(params, x), dU(params, x) - 0.86
 
-def ic2_residual(params, x):
-    return dU(params, x) - 0.86
 
 de_col = domain.Line((-10,), (10,), 100)
 ic_col = domain.Point((0,))
 
 de_res = Residual(de_col, de_residual)
-ic_res = Residual(ic_col, [ic1_residual, ic2_residual])
+ic_res = Residual(ic_col, ic1_residual)
 
 if __name__ == '__main__':
     
