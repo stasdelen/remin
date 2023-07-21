@@ -26,7 +26,7 @@ def pde_residual(U, x, y):
     X, Y = U
     X_x, X_y = grad(X, [x, y])
     Y_x, Y_y = grad(Y, [x, y])
-    X_xy, X_xx = grad(X_x, [x, y])
+    X_xx, X_xy = grad(X_x, [x, y])
     Y_yx, Y_yy = grad(Y_y, [x, y])
     X_yy = grad(X_y, y)[0]
     Y_xx = grad(Y_x, x)[0]
@@ -58,16 +58,14 @@ if __name__ == '__main__':
         fully_loaded=True
     )
 
-    epochs = 10000
+    epochs = 30000
     lr = 5e-5
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     resloss = EagerLoss(nn.MSELoss())
-    metloss = EagerLoss(nn.HuberLoss())
     trainer = make_trainer(loader,
                            optimizer=optimizer,
-                           residual_loss=resloss,
-                           metric_loss=metloss)
+                           residual_loss=resloss)
     
     solver = Solver(model,
                     name='mesh_soft',
@@ -79,8 +77,7 @@ if __name__ == '__main__':
         callbacks.SaveCallback(),
         callbacks.CSVCallback(),
         callbacks.LogCallback(log_epoch=1000, log_progress=100),
-        callbacks.PlotCallback(state='residual', name='ressloss.png'),
-        callbacks.PlotCallback(state='metric', name='metloss.png')
+        callbacks.PlotCallback(state='residual', name='ressloss.png')
     )
 
     solver.fit(epochs)
