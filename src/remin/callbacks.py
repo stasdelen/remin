@@ -1,4 +1,4 @@
-from time import thread_time
+from time import time
 from typing import Dict, List, Any
 import numpy as np
 import matplotlib.pyplot as plt
@@ -67,10 +67,10 @@ class TotalTimeCallback(Callback):
         self.t0 = 0
 
     def on_train_begin(self):
-        self.t0 = time.time()
+        self.t0 = time()
 
     def on_train_end(self):
-        print(f'\nTotal training time: {((time.time() - self.t0) / 60):7.3f}mins.')
+        print(f'\nTotal training time: {((time() - self.t0) / 60):7.3f}mins.')
 
 
 class LogCallback(Callback):
@@ -87,7 +87,7 @@ class LogCallback(Callback):
         self.metric = bool(self.state_dict['solver'].trainer.metric_loss)
 
     def on_epoch_begin(self):
-        self.t0 = thread_time()
+        self.t0 = time()
 
     def on_epoch_end(self):
         epoch = self.state_dict['epoch']
@@ -95,7 +95,7 @@ class LogCallback(Callback):
         resloss = self.state_dict['residual']
         metloss = self.state_dict['metric']
 
-        self.t_ave = (self.t_ave * epoch + (thread_time() - self.t0)) / (epoch + 1)
+        self.t_ave = (self.t_ave * epoch + (time() - self.t0)) / (epoch + 1)
         if epoch % self.log_progress == 0:
             prefix = f'Loss: {resloss:10.6f}'
             if self.metric:

@@ -5,7 +5,7 @@ from matplotlib import cm
 
 
 model = Heat()
-mdata = torch.load('outputs/heat_best_model.pt')
+mdata = torch.load('outputs/heat_best.pt')
 model.load_state_dict(mdata['model_state_dict'])
 model.eval()
 

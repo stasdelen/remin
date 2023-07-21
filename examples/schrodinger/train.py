@@ -20,19 +20,17 @@ def de_residual(u_pred, x):
     V = 0.5 * omega**2 * x**2
     du = func.grad(u_pred, x)[0]
     ddu = func.grad(du, x)[0]
-    return -0.5*ddu + (V - E) * u_pred
+    return -0.5*ddu + (V - E) * u_pred,
 
-def ic1_residual(u_pred, x):
-    return u_pred
+def ic_residual(u_pred, x):
+    return u_pred, func.grad(u_pred, x)[0] - 0.86
 
-def ic2_residual(u_pred, x):
-    return func.grad(u_pred, x)[0] - 0.86
 
 de_col = domain.Line((-10,), (10,), 100)
 ic_col = domain.Point((0,))
 
 de_res = Residual(de_col, de_residual)
-ic_res = Residual(ic_col, [ic1_residual, ic2_residual])
+ic_res = Residual(ic_col, ic_residual)
 
 if __name__ == '__main__':
     

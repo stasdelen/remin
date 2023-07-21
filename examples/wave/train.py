@@ -18,16 +18,13 @@ def pde_residual(u, t, x):
     u_t, u_x = func.grad(u, [t, x])
     u_tt = func.grad(u_t, t)[0]
     u_xx = func.grad(u_x, x)[0]
-    return u_tt - u_xx
+    return u_tt - u_xx,
 
-def ic0_residual(u, t, x):
-    return func.grad(u, t)[0]
-
-def ic1_residual(u, t, x):
-    return u - torch.sin(3 * torch.pi * x)
+def ic_residual(u, t, x):
+    return func.grad(u, t)[0], u - torch.sin(3 * torch.pi * x)
 
 def bc_residual(u, t, x):
-    return u
+    return u,
 
 pde_col = dm.Time(0, 1) * dm.Line((0,), (1,), 1024)
 ic_col =  dm.Time(0, 0) * dm.Line((0,), (1,), 1024)
@@ -36,7 +33,7 @@ bc_col = dm.Time(0, 1) * (
     )
 
 pde_res = Residual(pde_col, pde_residual)
-ic_res = Residual(ic_col, [ic0_residual, ic1_residual])
+ic_res = Residual(ic_col, ic_residual)
 bc_res = Residual(bc_col, bc_residual)
 
 if __name__ == '__main__':
@@ -60,7 +57,7 @@ if __name__ == '__main__':
                            metric_loss=metloss)
     
     solver = Solver(model,
-                    'wave_eager',
+                    'wave',
                     'outputs',
                     trainer=trainer)
     
