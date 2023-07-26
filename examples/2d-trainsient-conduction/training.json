@@ -1,0 +1,274 @@
+{
+    "models" : [
+        {
+            "name" : "4l32_uniform",
+            "tag" : "uniform",
+            "model_path" : ["models.4L32", "Conduction"],
+            "data_path" : ["data.uniform", "residuals"],
+            "outputs" : "outputs.4l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l32_linear",
+            "tag" : "linear",
+            "model_path" : ["models.4L32", "Conduction"],
+            "data_path" : ["data.linear", "residuals"],
+            "outputs" : "outputs.4l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l32_step",
+            "tag" : "step",
+            "model_path" : ["models.4L32", "Conduction"],
+            "data_path" : ["data.step", "residuals"],
+            "outputs" : "outputs.4l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l32_unhom",
+            "tag" : "unhom",
+            "model_path" : ["models.4L32", "Conduction"],
+            "data_path" : ["data.unhom", "residuals"],
+            "outputs" : "outputs.4l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l64_uniform",
+            "tag" : "uniform",
+            "model_path" : ["models.4L64", "Conduction"],
+            "data_path" : ["data.uniform", "residuals"],
+            "outputs" : "outputs.4l64",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l64_linear",
+            "tag" : "linear",
+            "model_path" : ["models.4L64", "Conduction"],
+            "data_path" : ["data.linear", "residuals"],
+            "outputs" : "outputs.4l64",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l64_step",
+            "tag" : "step",
+            "model_path" : ["models.4L64", "Conduction"],
+            "data_path" : ["data.step", "residuals"],
+            "outputs" : "outputs.4l64",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "4l64_unhom",
+            "tag" : "unhom",
+            "model_path" : ["models.4L64", "Conduction"],
+            "data_path" : ["data.unhom", "residuals"],
+            "outputs" : "outputs.4l64",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "8l32_uniform",
+            "tag" : "uniform",
+            "model_path" : ["models.8L32", "Conduction"],
+            "data_path" : ["data.uniform", "residuals"],
+            "outputs" : "outputs.8l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "8l32_linear",
+            "tag" : "linear",
+            "model_path" : ["models.8L32", "Conduction"],
+            "data_path" : ["data.linear", "residuals"],
+            "outputs" : "outputs.8l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "8l32_step",
+            "tag" : "step",
+            "model_path" : ["models.8L32", "Conduction"],
+            "data_path" : ["data.step", "residuals"],
+            "outputs" : "outputs.8l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        },
+        {
+            "name" : "8l32_unhom",
+            "tag" : "unhom",
+            "model_path" : ["models.8L32", "Conduction"],
+            "data_path" : ["data.unhom", "residuals"],
+            "outputs" : "outputs.8l32",
+            "epochs" : 20000,
+            "lr" : 5e-4,
+            "callbacks" : {
+                "total_time" : 1,
+                "save" : 1,
+                "log" : [1000, 100],
+                "csv": 1
+            },
+            "loader" : {
+                "fully_loaded" : true
+            },
+            "loss" : {
+                    "residual" : "residual_loss",
+                    "metric" : "metric_loss" 
+            }
+        }
+    ],
+    "conf" : {
+        "device" : "cuda",
+        "seed" : 0,
+        "matmul_precision" : "high",
+        "postprocess" : ["postprocess", "main"]
+    }
+}
