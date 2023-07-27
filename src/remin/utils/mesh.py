@@ -43,8 +43,9 @@ class VTK(IntEnum):
 class Mesh:
 
     def __init__(self) -> None:
+        self.version = None
         self.elements = None
-        self.vertices = None   
+        self.vertices = [None] * 3   
         self.offsets = None
         self.elementTypes = None
 
@@ -110,14 +111,7 @@ class GmshParser:
                 self.dataType = np.float64
             else:
                 raise ValueError('Unsupported data size.')
-            self.Vx, self.Vy, self.Vz = None, None, None
-            self.types = None
-            self.elemenTypes = None
-            self.elements = None
-            self.offsets = None
-
-        def getvertices(self):
-            return self.Vx, self.Vy, self.Vz
+            self.mesh = Mesh()
 
         def readNodes(self):
             raise NotImplementedError('readNodes must be implemented.')
@@ -129,26 +123,27 @@ class GmshParser:
         
         def readNodes(self):
             self.numNodes = int(pop(self.file))
-            self.Vx = np.zeros((self.numNodes, 1), dtype=self.dataType)
-            self.Vy = np.zeros((self.numNodes, 1), dtype=self.dataType)
-            self.Vz = np.zeros((self.numNodes, 1), dtype=self.dataType)
+            Vx = np.zeros((self.numNodes, 1), dtype=self.dataType)
+            Vy = np.zeros((self.numNodes, 1), dtype=self.dataType)
+            Vz = np.zeros((self.numNodes, 1), dtype=self.dataType)
             
             line = pop(self.file)
             while line != '$EndNodes':
                 node = line.split(' ') 
                 nodeId = int(node[0])
                 pos = [float(p) for p in node[1:]]
-                self.Vx[nodeId-1] = pos[0]
-                self.Vy[nodeId-1] = pos[1]
-                self.Vz[nodeId-1] = pos[2]
+                Vx[nodeId-1] = pos[0]
+                Vy[nodeId-1] = pos[1]
+                Vz[nodeId-1] = pos[2]
 
                 line = pop(self.file)
+            self.mesh.vertices = (Vx, Vy, Vz)
 
         def readElements(self):
-            self.numElements = int(pop(self.file))
-            self.elemenTypes = np.zeros(self.numElements, dtype=np.int8)
-            self.elements = []
-            self.offsets = np.zeros(self.numElements, dtype=np.int32)
+            numElements = int(pop(self.file))
+            elemenTypes = np.zeros(numElements, dtype=np.int8)
+            elements = []
+            offsets = np.zeros(numElements, dtype=np.int32)
 
             # Parser Ignores the tags for now!
             line = pop(self.file)
@@ -156,12 +151,12 @@ class GmshParser:
                 element = [int(e) for e in line.split(' ')]
                 elementNumber, elementType, numOfTags = element[:3] 
                 
-                self.elemenTypes[elementNumber-1] = elementType
-                self.elements += [i - 1 for i in element[3 + numOfTags:]]
+                elemenTypes[elementNumber-1] = elementType
+                elements += [i - 1 for i in element[3 + numOfTags:]]
                 if elementNumber == 1:
                     offset = 0
                 else:
-                    offset = self.offsets[elementNumber-2]
+                    offset = offsets[elementNumber-2]
                 if elementType == Gmsh.LIN_2:
                     offset += 2
                 elif elementType == Gmsh.TRI_3:
@@ -199,9 +194,12 @@ class GmshParser:
                 else:
                     print(elementType)
                     raise ValueError('Unknown Element type.')
-                self.offsets[elementNumber-1] = offset
+                offsets[elementNumber-1] = offset
                 line = pop(self.file)
-            self.elements = np.asanyarray(self.elements, dtype=np.int32)
+            self.mesh.elements = np.asanyarray(elements, dtype=np.int32)
+            self.mesh.offsets = offsets
+            self.mesh.elementTypes = elemenTypes
+            self.mesh.version = '2.2'
         
     class DataParserV4(DataParser):
         
@@ -248,9 +246,4 @@ def pop(file) -> str:
 def read(fileName):
     parser = GmshParser()
     parser.parse(fileName)
-    mesh = Mesh()
-    mesh.elements = parser.dataParser.elements
-    mesh.vertices = parser.dataParser.getvertices()
-    mesh.offsets = parser.dataParser.offsets
-    mesh.elementTypes = parser.dataParser.elemenTypes
-    return mesh
+    return parser.dataParser.mesh
