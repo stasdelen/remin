@@ -45,11 +45,29 @@ class Mesh:
     def __init__(self) -> None:
         self.version = None
         self.elements = None
-        self.vertices = [None] * 3   
+        self.vertices = None
         self.offsets = None
         self.elementTypes = None
         self.physicalNames = None
         self.physicalNameMap = dict()
+
+    def find(self, tag, exclude = None):
+        idxes = self.physicalNames[:,self.physicalNameMap[tag]]
+        if exclude:
+            if isinstance(exclude, str):
+                if exclude == 'all':
+                    for key in self.physicalNameMap.keys():
+                        if tag != key:
+                            eIdx = np.logical_not(self.physicalNames[:,self.physicalNameMap[key]])
+                            idxes = np.logical_and(idxes, eIdx)
+                else:
+                    eIdx = np.logical_not(self.physicalNames[:,self.physicalNameMap[exclude]])
+                    idxes = np.logical_and(idxes, eIdx)
+            else:
+                for e in exclude:
+                    eIdx = np.logical_not(self.physicalNames[:,self.physicalNameMap[e]])
+                    idxes = np.logical_and(idxes, eIdx)
+        return self.vertices[idxes]
 
     def writeVTK(self, fileName):
         vtkTypes = np.zeros_like(self.elementTypes)
