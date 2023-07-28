@@ -48,6 +48,8 @@ class Mesh:
         self.vertices = [None] * 3   
         self.offsets = None
         self.elementTypes = None
+        self.physicalNames = None
+        self.physicalNameMap = dict()
 
     def writeVTK(self, fileName):
         vtkTypes = np.zeros_like(self.elementTypes)
@@ -102,6 +104,8 @@ class GmshParser:
     class DataParser:
         
         def __init__(self, file, dataSize) -> None:
+            self.numPhysicalNames = None
+            self.tagToIdx = {}
             self.file = file
             if dataSize == '4':
                 self.dataType = np.float16
@@ -113,6 +117,9 @@ class GmshParser:
                 raise ValueError('Unsupported data size.')
             self.mesh = Mesh()
 
+        def readPhysicalNames(self):
+            return NotImplementedError('readPhysicalNodes must be implemented.')
+
         def readNodes(self):
             raise NotImplementedError('readNodes must be implemented.')
 
@@ -121,30 +128,39 @@ class GmshParser:
         
     class DataParserV2(DataParser):
         
+        def readPhysicalNames(self):
+            self.numPhysicalNames = int(pop(self.file))
+            line = pop(self.file)
+            idx = 0
+            while line != '$EndPhysicalNames':
+                # Ignore physical dimension
+                _, physicalTag, physicalName = line.split(' ')
+                self.mesh.physicalNameMap[physicalName[1:-1]] = idx
+                self.tagToIdx[int(physicalTag)] = idx
+                idx += 1
+                line = pop(self.file)
+
         def readNodes(self):
             self.numNodes = int(pop(self.file))
-            Vx = np.zeros((self.numNodes, 1), dtype=self.dataType)
-            Vy = np.zeros((self.numNodes, 1), dtype=self.dataType)
-            Vz = np.zeros((self.numNodes, 1), dtype=self.dataType)
+            V = np.zeros((self.numNodes, 3), dtype=self.dataType)
             
             line = pop(self.file)
             while line != '$EndNodes':
                 node = line.split(' ') 
                 nodeId = int(node[0])
                 pos = [float(p) for p in node[1:]]
-                Vx[nodeId-1] = pos[0]
-                Vy[nodeId-1] = pos[1]
-                Vz[nodeId-1] = pos[2]
+                V[nodeId-1] = pos[0:3]
 
                 line = pop(self.file)
-            self.mesh.vertices = (Vx, Vy, Vz)
+            self.mesh.vertices = V
 
         def readElements(self):
             numElements = int(pop(self.file))
             elemenTypes = np.zeros(numElements, dtype=np.int8)
             elements = []
             offsets = np.zeros(numElements, dtype=np.int32)
-
+            if self.tagToIdx:
+                self.mesh.physicalNames = np.zeros((self.numNodes, self.numPhysicalNames), dtype=bool)
             # Parser Ignores the tags for now!
             line = pop(self.file)
             while line != '$EndElements':
@@ -153,6 +169,10 @@ class GmshParser:
                 
                 elemenTypes[elementNumber-1] = elementType
                 elements += [i - 1 for i in element[3 + numOfTags:]]
+                if self.tagToIdx:
+                    for el in element[3 + numOfTags:]:
+                        self.mesh.physicalNames[el-1, self.tagToIdx[element[3]]] = True
+                
                 if elementNumber == 1:
                     offset = 0
                 else:
@@ -234,6 +254,8 @@ class GmshParser:
                         self.dataParser = GmshParser.DataParserV4(self.file, self.dataSize)
                     else:
                         raise ValueError('Unsupported version.')
+                if line == '$PhysicalNames':
+                    self.dataParser.readPhysicalNames()
                 if line == '$Nodes':
                     self.dataParser.readNodes()
                 if line == '$Elements':
