@@ -113,7 +113,9 @@ class Mesh:
                 raise ValueError('Unknown Element type.')
         unstructuredGridToVTK(
 		    fileName,
-		    *self.vertices,
+		    np.ascontiguousarray(self.vertices[:,0:1]),
+            np.ascontiguousarray(self.vertices[:,1:2]),
+            np.ascontiguousarray(self.vertices[:,2:3]),
 		    self.elements,
 		    self.offsets,
 		    vtkTypes
