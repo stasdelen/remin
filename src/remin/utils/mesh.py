@@ -67,7 +67,10 @@ class Mesh:
                 for e in exclude:
                     eIdx = np.logical_not(self.physicalNames[:,self.physicalNameMap[e]])
                     idxes = np.logical_and(idxes, eIdx)
-        return self.vertices[idxes]
+        return idxes
+
+    def get(self, tag, exlude = None):
+        return self.vertices[self.find(tag, exclude=exlude)]
 
     def writeVTK(self, fileName):
         vtkTypes = np.zeros_like(self.elementTypes)
