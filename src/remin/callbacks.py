@@ -256,3 +256,20 @@ class EarlyStoppingCallback(Callback):
         else:
             #print(resloss - self.saved_loss)
             self.patience += 1
+
+class ToleranceCallback(Callback):
+
+    def __init__(self, tolerance) -> None:
+        super().__init__()
+        self.tolerance = tolerance
+
+    def on_epoch_end(self):
+        resloss = self.state_dict['residual']
+
+        if self.tolerance >= resloss:
+            print(
+                f'''\nEarly Stopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
+        Residual Loss: {resloss:10.6f}
+        Saved Loss:    {self.saved_loss:10.6f}
+        Best Loss:     {self.best_loss:10.6f}''')
+            return 1
