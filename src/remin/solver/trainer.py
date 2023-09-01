@@ -105,7 +105,9 @@ def make_trainer(loader: Loader,
     if residual_loss is None:
         residual_loss = FuncLoss(lossfunc, model, loader)
     if isinstance(loader, BatchLoader):
-        return BatchedTrainer(loader, model, optimizer, scheduler, residual_loss, metric_loss)
+        return BatchedTrainer(loader, model, optimizer, scheduler, residual_loss,
+                              metric_loss)
     if isinstance(loader, FullLoader):
-        return FullyLoadedTrainer(loader, model, optimizer, scheduler, residual_loss, metric_loss)
+        return FullyLoadedTrainer(loader, model, optimizer, scheduler, residual_loss,
+                                  metric_loss)
     raise ValueError('Unknown Loader Type.')

@@ -97,9 +97,15 @@ class LogCallback(Callback):
 
         self.t_ave = (self.t_ave * epoch + (time() - self.t0)) / (epoch + 1)
         if epoch % self.log_progress == 0:
-            prefix = f'Loss: {resloss:10.6f}'
+            if resloss < 1e-3:
+                prefix = f'Loss: {resloss:.6E}'
+            else:
+                prefix = f'Loss: {resloss:10.6f}'
             if self.metric:
-                prefix += f' - Metric Loss: {metloss:10.6f}'
+                if metloss < 1e-3:
+                    prefix += f' - Metric Loss: {metloss:.6E}'
+                else:
+                    prefix += f' - Metric Loss: {metloss:10.6f}'
             self._printProgress(epoch, epochs, self.log_epoch, prefix,
                                 f'{(self.t_ave*1e3):7.3f}ms/epoch')
 
@@ -257,6 +263,7 @@ class EarlyStoppingCallback(Callback):
             #print(resloss - self.saved_loss)
             self.patience += 1
 
+
 class ToleranceCallback(Callback):
 
     def __init__(self, tolerance) -> None:
@@ -268,8 +275,7 @@ class ToleranceCallback(Callback):
 
         if self.tolerance >= resloss:
             print(
-                f'''\nEarly Stopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
+                f'''\nStopping at {self.state_dict['epoch']}/{self.state_dict['epochs']}:
         Residual Loss: {resloss:10.6f}
-        Saved Loss:    {self.saved_loss:10.6f}
-        Best Loss:     {self.best_loss:10.6f}''')
+        ''')
             return 1
