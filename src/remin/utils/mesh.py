@@ -72,7 +72,8 @@ class Mesh:
     def get(self, tag, exlude = None):
         return self.vertices[self.find(tag, exclude=exlude)]
 
-    def writeVTK(self, fileName):
+    def writeVTK(self, fileName, vertices = None):
+        vertices = self.vertices if vertices is None else vertices
         vtkTypes = np.zeros_like(self.elementTypes)
         for i, elementType in enumerate(self.elementTypes):
             if elementType == Gmsh.LIN_2:
@@ -113,9 +114,9 @@ class Mesh:
                 raise ValueError('Unknown Element type.')
         unstructuredGridToVTK(
 		    fileName,
-		    np.ascontiguousarray(self.vertices[:,0:1]),
-            np.ascontiguousarray(self.vertices[:,1:2]),
-            np.ascontiguousarray(self.vertices[:,2:3]),
+		    np.ascontiguousarray(vertices[:,0:1]),
+            np.ascontiguousarray(vertices[:,1:2]),
+            np.ascontiguousarray(vertices[:,2:3]),
 		    self.elements,
 		    self.offsets,
 		    vtkTypes
