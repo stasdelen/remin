@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 
 
 def check_module(path: str) -> bool:
