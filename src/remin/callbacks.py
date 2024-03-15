@@ -256,3 +256,38 @@ class EarlyStoppingCallback(Callback):
         else:
             #print(resloss - self.saved_loss)
             self.patience += 1
+
+
+class NTKCallback(Callback):
+    def __init__(self, weight_list):
+        super().__init__()
+
+    @staticmethod
+    def compute_jacobian(output, params):
+        output = output.reshape(-1)
+        J_dum = []
+        J_List = []
+        
+        for i in range(len(params)):
+            grad, = torch.autograd.grad(output, params[i], (torch.eye(output.shape[0]).to(device),),retain_graph=True, allow_unused=True, is_grads_batched=True)
+            if grad == None:
+                pass
+            else:
+                J_dum.append(grad)
+
+                if np.mod(i,2)==1:
+                    if grad == None:
+                        pass
+                    J_List.append(torch.cat((J_dum[i-1].flatten().reshape(len(output),-1),grad.flatten().reshape(len(output),-1)), 1))
+        return J_List
+
+    # Compute Neural Tangent Kernel's Trace Values
+    @staticmethod
+    def compute_ntk(J1, d1, J2, d2):
+        
+        Ker = torch.zeros((d1,d2)).float().to(device)
+
+        for i in range(len(J1)):
+            K = torch.matmul(J1[i], J2[i].t())
+            Ker = Ker + K       
+        return Ker        
