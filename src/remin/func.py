@@ -1,5 +1,5 @@
 from functools import wraps
-from torch import func, autograd
+from torch import func, autograd, ones_like
 from torch import _dynamo as dynamo
 
 
@@ -48,7 +48,8 @@ def fgradi(f, i, argnum=1):
 
 
 def grad(u, xs, create_graph=True, retain_graph=True):
-    return autograd.grad(u.sum(),
+    return autograd.grad(u,
                          xs,
+                         grad_outputs=ones_like(u),
                          create_graph=create_graph,
                          retain_graph=retain_graph)
