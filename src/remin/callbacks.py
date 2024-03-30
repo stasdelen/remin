@@ -3,7 +3,8 @@ from typing import Dict, List, Any
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
-
+import signal
+import sys
 
 class Callback:
     # Callback interface
@@ -136,11 +137,23 @@ class LogCallback(Callback):
 
 class SaveCallback(Callback):
 
-    def __init__(self, best_suffix='_best.pt', final_suffix='_final.pt') -> None:
+    def __init__(self, save_per = None, best_suffix='_best.pt', final_suffix='_final.pt') -> None:
         super().__init__()
         self.best_loss = float('inf')
+        self.save_per = save_per
         self.best_suffix = best_suffix
         self.final_suffix = final_suffix
+
+        def signal_handler(sig, frame):
+            epoch = self.state_dict['epoch']
+            msg = input(f'\nTraining stopped at: {epoch}. Do you want to coninue or stop[c/s]? ')
+            if msg.capitalize() == 'S':
+                print(f'Training ended, saving model.')
+                solver = self.state_dict['solver']
+                solver.save(epoch, f'_{epoch}.pt')
+                sys.exit(0)
+        
+        signal.signal(signal.SIGINT, signal_handler)
 
     def on_epoch_end(self):
         resloss = self.state_dict['residual']
@@ -149,6 +162,8 @@ class SaveCallback(Callback):
         if resloss < self.best_loss:
             self.best_loss = resloss
             solver.save(epoch, self.best_suffix)
+        if self.save_per and epoch % self.save_per == 0:
+            solver.save(epoch, f'_{epoch}.pt')
 
     def on_train_end(self):
         solver = self.state_dict['solver']
